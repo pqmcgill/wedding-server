@@ -1,0 +1,5 @@
+{
+	"secret": "yourmothersmellsofelberberrysauce",
+	"port": 4000,
+	"DBHost": "mongodb://localhost/Wedding"
+}
