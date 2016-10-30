@@ -1,27 +1,28 @@
+import mongoose from 'mongoose';
+import shortid from 'shortid';
 import config from 'config';
 import { encode, decode } from 'jwt-simple';
 import User from '../../models/user';
 
 const createUser = (req, res) => {
-	if (!req.body.name || !req.body.password || !req.body.access) {
+	if (!req.body.name || !req.body.access) {
 		res.status(409);
-		return res.json({ success: false, msg: 'Please pass name, password and access' });
+		return res.json({ success: false, msg: 'Please pass name and access' });
 	} 
 
 	const newUser = new User({
 		name:     req.body.name,
-		password: req.body.password,
+		password: shortid.generate(),
 		access:     req.body.access
 	});
 
-	newUser.save(err => {
+	newUser.save((err, user) => {
 		if (err) {
 			res.status(409);
 			return res.json({ success: false, msg: 'Username already exists' });
 		}
-
 		res.status(201);
-		return res.json({ success: true, msg: 'Successfully created new user' });
+		return res.json({ success: true, msg: 'Successfully created new user', user });
 	});
 };
 
@@ -33,6 +34,19 @@ const getAllUsers = (req, res) => {
 
 		res.status(200);
 		return res.json({ users });
+	});
+};
+
+const deleteUser = ({ params }, res) => {
+	User.findOne({ _id: mongoose.Types.ObjectId(params.id) }).then((found) => {
+		if (!found) return res.json({ success: false, msg: 'No records found with that id' });
+		return found.remove().then((err) => {
+			if (err) return res.json({ success: false, msg: 'Error: ' + err });
+			return res.json({ success: true, msg: 'successfully deleted' });
+		});
+
+	}).catch((err) => {
+		res.json({ success: false, msg: 'Error: ' + err });
 	});
 };
 
@@ -70,5 +84,6 @@ const authenticateUser = (req, res) => {
 export default {
 	createUser,
 	getAllUsers,
+	deleteUser,
 	authenticateUser
 };

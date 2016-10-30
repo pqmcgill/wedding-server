@@ -8,7 +8,8 @@ export default () => {
 	const userApi = Router();
 
 	userApi.post('/', authenticate, requiresAdmin, ctrl.createUser);
-	userApi.get( '/', authenticate, requiresAdmin, ctrl.getAllUsers);
+	userApi.get('/', authenticate, requiresAdmin, ctrl.getAllUsers);
+	userApi.delete('/:id', authenticate, requiresAdmin, ctrl.deleteUser);
 	userApi.post('/authenticate', ctrl.authenticateUser);
 
 	return userApi;
