@@ -4,44 +4,48 @@ import config from 'config';
 import { encode, decode } from 'jwt-simple';
 import User from '../../models/user';
 
-const createUser = (req, res) => {
+const createGuest = (req, res) => {
 	if (!req.body.name || !req.body.access) {
 		res.status(409);
 		return res.json({ success: false, msg: 'Please pass name and access' });
 	} 
 
-	const newUser = new User({
+	const guest = new User({
 		name:     req.body.name,
 		password: shortid.generate(),
 		access:     req.body.access
 	});
 
-	newUser.save((err, user) => {
+	guest.save((err, user) => {
 		if (err) {
 			res.status(409);
-			return res.json({ success: false, msg: 'Username already exists' });
+			return res.json({ success: false, msg: 'guest with that name already exists' });
 		}
 		res.status(201);
-		return res.json({ success: true, msg: 'Successfully created new user', user });
+		return res.json({ success: true, msg: 'Successfully created new guest', guest });
 	});
 };
 
-const getAllUsers = (req, res) => {
-	User.find({}, (err, users) => {
+const getAllGuests = (req, res) => {
+	User.find({ access: 'guest' }, (err, guests) => {
 		if (err) {
 			return res.sendStatus(500);
 		}
-
+		const formatted = Object.keys(guests)
+			.reduce((acc, curr) => { 
+				const guest = { [guests[curr]._id]: guests[curr] };
+				return { ...acc, ...guest };
+			}, {});
 		res.status(200);
-		return res.json({ users });
+		return res.json({ guests: formatted });
 	});
 };
 
-const deleteUser = ({ params }, res) => {
+const deleteGuest = ({ params }, res) => {
 	User.findOne({ _id: mongoose.Types.ObjectId(params.id) }).then((found) => {
 		if (!found) return res.json({ success: false, msg: 'No records found with that id' });
-		return found.remove().then((err) => {
-			if (err) return res.json({ success: false, msg: 'Error: ' + err });
+		found.remove().then((record) => {
+			res.status(200);
 			return res.json({ success: true, msg: 'successfully deleted' });
 		});
 
@@ -82,8 +86,8 @@ const authenticateUser = (req, res) => {
 };
 
 export default {
-	createUser,
-	getAllUsers,
-	deleteUser,
+	createGuest,
+	getAllGuests,
+	deleteGuest,
 	authenticateUser
 };

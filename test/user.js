@@ -161,17 +161,6 @@ describe('/users', () => {
 		// end POST /
 
 	describe('GET \'/\'', () => {
-		beforeEach(done => {
-			request(server)
-				.post('/api/user/authenticate')
-				.send({ name: 'adminUser', password: 'adminPassword' })
-				.end((err, res) => {
-					if (err) return done(err);
-					adminToken = res.body.user.token;
-					done();
-				});
-		});
-
 		it('should return array of users', done => {
 			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
 				if (err) return done(err);
@@ -180,14 +169,48 @@ describe('/users', () => {
 					.set('Authorization', user.token)
 					.end((err, res) => {
 						if (err) return done(err);
-						const { users } = res.body;
-						expect(users.length).to.be.greaterThan(0);
-						expect(users[0].name).to.equal('adminUser');
+						const { guests } = res.body;
+						expect(Object.keys(guests).length).to.be.greaterThan(0);
 						done();
 					});
 			});
 		});
 	});
 	// end GET '/'	
+	
+	describe('DELETE \'/\'', () => {
+		it('should delete a guest given its id', (done) => {
+			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+				if (err) return done(err);
+				User.findOne({ name: 'guestUser' }, (err, guest) => {
+					request(server)
+						.delete('/api/user/' + guest._id)
+						.set('Authorization', user.token)
+						.end((err, res) => {
+							if (err) return done(err);
+							expect(res.body.success).to.be.true;
+							User.findOne({ name: 'guestUser' }, (err, guest) => {
+								expect(guest).to.be.null;
+								done();
+							});
+						});
+				});
+			});
+		});
+
+		it('should throw not succeed if the guest was not found', (done) => {
+			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+				if (err) return done(err);
+				request(server)
+					.delete('/api/user/123456789012345678901234')
+					.set('Authorization', user.token)
+					.end((err, res) => {
+						if (err) return done(err);
+						expect(res.body.success).to.be.false;
+						done();
+					});
+			});
+		});
+	});
 
 });
