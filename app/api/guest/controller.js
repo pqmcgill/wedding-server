@@ -18,6 +18,7 @@ const createGuest = (req, res) => {
 
 	guest.save((err, user) => {
 		if (err) {
+			console.log(err);
 			res.status(409);
 			return res.json({ success: false, msg: 'guest with that name already exists' });
 		}
