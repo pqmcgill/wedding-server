@@ -7,6 +7,20 @@ const UserSchema = new Schema({
 		unique: true,
 		required: true
 	},
+  guestName: {
+    type: String
+  },
+  guestConfirmation: {
+    type: Boolean,
+    default: false
+  },
+  plusOneName: {
+    type: String,
+  },
+  plusOneConfirmation: {
+    type: Boolean,
+    default: false
+  },
 	password: {
 		type: String,
 		required: true

@@ -14,7 +14,9 @@ const createGuest = (req, res) => {
 		username:    req.body.username,
 		password:    shortid.generate(),
     access:      req.body.access,
-    affiliation: req.body.affiliation
+    affiliation: req.body.affiliation,
+    guestName:   req.body.guestName,
+    plusOneName: req.body.plusOneName,
 	});
 
 	guest.save((err, user) => {
@@ -56,6 +58,32 @@ const deleteGuest = ({ params }, res) => {
 	});
 };
 
+const updateGuestConfirmation = ({ params }, res) => {
+  User.findById(params.id).then((found) => {
+    if (!found) return res.json({ success: false, msg: 'No records found with that id' });
+    found.guestConfirmation = params.guestConfirmation;
+    found.save((err, updated) => {
+      if (err) return res.json({ success: false, msg: 'Error: ' + err });
+      res.send(updated);
+    });
+  }).catch(err => {
+    res.json({ success: false, msg: 'Error: ' + err });
+  });
+};
+
+const updatePlusOneConfirmation = ({ params }, res) => {
+  User.findById(params.id).then((found) => {
+    if (!found) return res.json({ success: false, msg: 'No records found with that id' });
+    found.plusOneConfirmation = params.plusOneConfirmation;
+    found.save((err, updated) => {
+      if (err) return res.json({ success: false, msg: 'Error: ' + err });
+      res.send(updated);
+    });
+  }).catch(err => {
+    res.json({ success: false, msg: 'Error: ' + err });
+  });
+};
+
 const authenticateUser = (req, res) => {
 	User.findOne({
 		username: req.body.username
@@ -91,5 +119,7 @@ export default {
 	createGuest,
 	getAllGuests,
 	deleteGuest,
+  updateGuestConfirmation,
+  updatePlusOneConfirmation,
 	authenticateUser
 };

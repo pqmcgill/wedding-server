@@ -213,4 +213,8 @@ describe('/users', () => {
 		});
 	});
 
+  //describe('PUT \'/updateGuestConfirmation\'', () => {
+  //
+  //});
+
 });
