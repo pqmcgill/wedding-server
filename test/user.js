@@ -13,8 +13,8 @@ describe('/users', () => {
 		beforeEach(done => {
 			User.remove({}, (err) => {
 				if (err) return done(err);
-				const adminUser = new User({ access: 'admin', name: 'adminUser', password: 'adminPassword' });
-				const guestUser = new User({ access: 'guest', name: 'guestUser', password: 'guestPassword' });
+				const adminUser = new User({ access: 'admin', username: 'adminUser', password: 'adminPassword' });
+				const guestUser = new User({ access: 'guest', username: 'guestUser', password: 'guestPassword' });
 				adminUser.save().then(() => {
 					return guestUser.save().then(() => done());
 				}).catch((err) => {
@@ -27,7 +27,7 @@ describe('/users', () => {
 		it('should send a JWT upon successfull authentication', done => {
 			request(server)
 				.post('/api/user/authenticate')
-				.send({ name: 'adminUser', password: 'adminPassword' })
+				.send({ username: 'adminUser', password: 'adminPassword' })
 				.end((err, res) => {
 					if (err) return done(err);
 					expect(res.body.success).to.be.true;
@@ -39,7 +39,7 @@ describe('/users', () => {
 		it('should return success:false for invalid username', done => {
 			request(server)
 				.post('/api/user/authenticate')
-				.send({ name: 'testuser', password: 'adminPassword' })
+				.send({ username: 'testuser', password: 'adminPassword' })
 				.end((err, res) => {
 					expect(err).to.not.be.null;
 					expect(res).to.have.status(401);
@@ -52,7 +52,7 @@ describe('/users', () => {
 		it('should return success:false for invalid password', done => {
 			request(server)
 				.post('/api/user/authenticate')
-				.send({ name: 'adminUser', password: 'testpassword' })
+				.send({ username: 'adminUser', password: 'testpassword' })
 				.end((err, res) => {
 					expect(err).to.not.be.null;
 					expect(res).to.have.status(401);
@@ -68,7 +68,7 @@ describe('/users', () => {
 		it('should return Unauthorized error if token is not used', done => {
 			request(server)
 				.post('/api/user')
-				.send({ name: 'newUser', password: 'newPassword', access: 'guest' })
+				.send({ username: 'newUser', password: 'newPassword', access: 'guest' })
 				.end((err, res) => {
 					expect(err).to.not.be.null;
 					expect(res).to.have.status(401);
@@ -78,13 +78,13 @@ describe('/users', () => {
 		});
 
 		it('should restrict access to admins only', done => {
-			authenticate(server, { name: 'guestUser', password: 'guestPassword' }, (err, user) => {
+			authenticate(server, { username: 'guestUser', password: 'guestPassword' }, (err, user) => {
 				if (err) return done(err);
 
 				request(server)
 					.post('/api/user')
 					.set('Authorization', user.token)
-					.send({ name: 'newUser', password: 'newPassword', access: 'guest' })
+					.send({ username: 'newUser', password: 'newPassword', access: 'guest' })
 					.end((_err, _res) => {
 						expect(_res).to.have.status(401);
 						done();
@@ -93,12 +93,12 @@ describe('/users', () => {
 		});
 
 		it('should successfully create a user', done => {
-			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+			authenticate(server, { username: 'adminUser', password: 'adminPassword' }, (err, user) => {
 				if (err) return done(err);
 				request(server)
 					.post('/api/user')
 					.set('Authorization', user.token)
-					.send({ name: 'foo', password: 'NewPassword', access: 'guest' })
+					.send({ username: 'foo', password: 'NewPassword', access: 'guest' })
 					.end((err, res) => {
 						if (err) return done(err);
 						expect(res).to.have.status(201);
@@ -109,8 +109,8 @@ describe('/users', () => {
 			});
 		});
 
-		it('should fail if missing name', done => {
-			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+		it('should fail if missing username', done => {
+			authenticate(server, { username: 'adminUser', password: 'adminPassword' }, (err, user) => {
 				if (err) return done(err);
 				request(server)
 					.post('/api/user')
@@ -127,12 +127,12 @@ describe('/users', () => {
 		});
 
 		it('should fail if missing password', done => {
-			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+			authenticate(server, { username: 'adminUser', password: 'adminPassword' }, (err, user) => {
 				if (err) return done(err);
 				request(server)
 					.post('/api/user')
 					.set('Authorization', user.token)
-					.send({ name: 'testName' })
+					.send({ username: 'testName' })
 					.end((err, res) => {
 						expect(err).to.not.be.null;
 						expect(res).to.have.status(409);
@@ -144,12 +144,12 @@ describe('/users', () => {
 		});
 
 		it('shouldn\'t allow creation of duplicate users', done => {
-			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+			authenticate(server, { username: 'adminUser', password: 'adminPassword' }, (err, user) => {
 				if (err) return done(err);
 				request(server)
 					.post('/api/user')
 					.set('Authorization', user.token)
-					.send({ name: 'guestUser', password: 'guestPassword' })
+					.send({ username: 'guestUser', password: 'guestPassword' })
 					.end((err, res) => {
 						expect(err).to.not.be.null;
 						expect(res).to.have.status(409);
@@ -162,7 +162,7 @@ describe('/users', () => {
 
 	describe('GET \'/\'', () => {
 		it('should return array of users', done => {
-			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+			authenticate(server, { username: 'adminUser', password: 'adminPassword' }, (err, user) => {
 				if (err) return done(err);
 				request(server)
 					.get('/api/user')
@@ -180,16 +180,16 @@ describe('/users', () => {
 	
 	describe('DELETE \'/\'', () => {
 		it('should delete a guest given its id', (done) => {
-			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+			authenticate(server, { username: 'adminUser', password: 'adminPassword' }, (err, user) => {
 				if (err) return done(err);
-				User.findOne({ name: 'guestUser' }, (err, guest) => {
+				User.findOne({ username: 'guestUser' }, (err, guest) => {
 					request(server)
 						.delete('/api/user/' + guest._id)
 						.set('Authorization', user.token)
 						.end((err, res) => {
 							if (err) return done(err);
 							expect(res.body.success).to.be.true;
-							User.findOne({ name: 'guestUser' }, (err, guest) => {
+							User.findOne({ username: 'guestUser' }, (err, guest) => {
 								expect(guest).to.be.null;
 								done();
 							});
@@ -199,7 +199,7 @@ describe('/users', () => {
 		});
 
 		it('should throw not succeed if the guest was not found', (done) => {
-			authenticate(server, { name: 'adminUser', password: 'adminPassword' }, (err, user) => {
+			authenticate(server, { username: 'adminUser', password: 'adminPassword' }, (err, user) => {
 				if (err) return done(err);
 				request(server)
 					.delete('/api/user/123456789012345678901234')

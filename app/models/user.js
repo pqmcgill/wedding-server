@@ -2,7 +2,7 @@ import { genSalt, hash, compare } from 'bcrypt';
 import mongoose, { Schema } from 'mongoose';
 
 const UserSchema = new Schema({
-	name: {
+	username: {
 		type: String,
 		unique: true,
 		required: true
@@ -15,7 +15,7 @@ const UserSchema = new Schema({
 		type: String,
 		required: true
 	},
-	affilliation: { 
+	affiliation: { 
 		type: String 
 	},
 });

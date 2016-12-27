@@ -5,22 +5,23 @@ import { encode, decode } from 'jwt-simple';
 import User from '../../models/user';
 
 const createGuest = (req, res) => {
-	if (!req.body.name || !req.body.access) {
+	if (!req.body.username || !req.body.access) {
 		res.status(409);
-		return res.json({ success: false, msg: 'Please pass name and access' });
+		return res.json({ success: false, msg: 'Please pass username and access' });
 	} 
 
 	const guest = new User({
-		name:     req.body.name,
-		password: shortid.generate(),
-		access:     req.body.access
+		username:    req.body.username,
+		password:    shortid.generate(),
+    access:      req.body.access,
+    affiliation: req.body.affiliation
 	});
 
 	guest.save((err, user) => {
 		if (err) {
 			console.log(err);
 			res.status(409);
-			return res.json({ success: false, msg: 'guest with that name already exists' });
+			return res.json({ success: false, msg: 'guest with that username already exists' });
 		}
 		res.status(201);
 		return res.json({ success: true, msg: 'Successfully created new guest', guest });
@@ -57,7 +58,7 @@ const deleteGuest = ({ params }, res) => {
 
 const authenticateUser = (req, res) => {
 	User.findOne({
-		name: req.body.name
+		username: req.body.username
 	}, (err, user) => {
 		if (err) throw err;
 
@@ -73,7 +74,7 @@ const authenticateUser = (req, res) => {
 				res.json({ 
 					success: true, 
 					user: { 
-						name: user.name,
+						username: user.username,
 						access: user.access,
 						token: `JWT ${token}` 
 					}
