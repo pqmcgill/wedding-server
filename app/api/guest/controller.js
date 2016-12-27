@@ -104,6 +104,10 @@ const authenticateUser = (req, res) => {
 					user: { 
 						username: user.username,
 						access: user.access,
+            guestName: user.guestName,
+            plusOneName: user.plusOneName,
+            guestConfirmation: user.guestConfirmation,
+            plusOneConfirmation: user.plusOneConfirmation,
 						token: `JWT ${token}` 
 					}
 				});
