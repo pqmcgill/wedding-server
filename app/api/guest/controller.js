@@ -58,26 +58,15 @@ const deleteGuest = ({ params }, res) => {
 	});
 };
 
-const updateGuestConfirmation = ({ params }, res) => {
-  User.findById(params.id).then((found) => {
+const updateGuest = ({ params, body }, res) => {
+  User.findOne({ _id: mongoose.Types.ObjectId(params.id) }).then((found) => {
     if (!found) return res.json({ success: false, msg: 'No records found with that id' });
-    found.guestConfirmation = params.guestConfirmation;
-    found.save((err, updated) => {
-      if (err) return res.json({ success: false, msg: 'Error: ' + err });
-      res.send(updated);
+    Object.keys(body).forEach((key) => {
+      found[key] = body[key];
     });
-  }).catch(err => {
-    res.json({ success: false, msg: 'Error: ' + err });
-  });
-};
-
-const updatePlusOneConfirmation = ({ params }, res) => {
-  User.findById(params.id).then((found) => {
-    if (!found) return res.json({ success: false, msg: 'No records found with that id' });
-    found.plusOneConfirmation = params.plusOneConfirmation;
     found.save((err, updated) => {
       if (err) return res.json({ success: false, msg: 'Error: ' + err });
-      res.send(updated);
+      res.send({ success: true, updated });
     });
   }).catch(err => {
     res.json({ success: false, msg: 'Error: ' + err });
@@ -102,6 +91,7 @@ const authenticateUser = (req, res) => {
 				res.json({ 
 					success: true, 
 					user: { 
+            id: user._id,
 						username: user.username,
 						access: user.access,
             guestName: user.guestName,
@@ -123,7 +113,6 @@ export default {
 	createGuest,
 	getAllGuests,
 	deleteGuest,
-  updateGuestConfirmation,
-  updatePlusOneConfirmation,
+  updateGuest,
 	authenticateUser
 };

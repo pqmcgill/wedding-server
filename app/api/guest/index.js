@@ -10,8 +10,7 @@ export default () => {
 	userApi.post('/', authenticate, requiresAdmin, ctrl.createGuest);
 	userApi.get('/', authenticate, requiresAdmin, ctrl.getAllGuests);
 	userApi.delete('/:id', authenticate, requiresAdmin, ctrl.deleteGuest);
-  userApi.put('/:id/confirmGuest', authenticate, ctrl.updateGuestConfirmation);
-  userApi.put('/:id/confirmPlusOne', authenticate, ctrl.updatePlusOneConfirmation);
+  userApi.put('/:id', authenticate, ctrl.updateGuest);
 	userApi.post('/authenticate', ctrl.authenticateUser);
 
 	return userApi;

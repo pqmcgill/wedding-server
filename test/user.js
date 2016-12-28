@@ -213,8 +213,44 @@ describe('/users', () => {
 		});
 	});
 
-  //describe('PUT \'/updateGuestConfirmation\'', () => {
-  //
-  //});
+  describe('PUT \'/:id\'', () => {
+    it('should successfully update guest and plusOne confirmations', (done) => {
+      authenticate(server, { username: 'guestUser', password: 'guestPassword' }, (err, user) => {
+        if (err) return done(err);
+
+				User.findOne({ username: 'guestUser' }, (err, guest) => {
+          request(server)
+            .put(`/api/user/${guest._id}`)
+            .set('Authorization', user.token)
+            .send({ guestConfirmation: true, plusOneConfirmation: true })
+            .end((err, res) => {
+              if (err) return done(err);
+              expect(res.body.success).to.be.true;
+              expect(res.body.updated.plusOneConfirmation).to.be.true;
+              expect(res.body.updated.guestConfirmation).to.be.true
+              done();
+            });
+        });
+      });
+    });
+
+    it('should not update anything if wrong data is passed', (done) => {
+      authenticate(server, { username: 'guestUser', password: 'guestPassword' }, (err, user) => {
+        if (err) return done(err);
+
+				User.findOne({ username: 'guestUser' }, (err, guest) => {
+          request(server)
+            .put(`/api/user/${guest._id}`)
+            .set('Authorization', user.token)
+            .send({ guestFlonfirmation: true, plusOneConfurmacion: true })
+            .end((err, res) => {
+              if (err) return done(err);
+              expect(res.body.success).to.be.true;
+              done();
+            });
+        });
+      });
+    });
+  });
 
 });
