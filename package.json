@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test mocha -w --recursive --timeout 10000 --compilers js:babel-register",
+    "test_once": "NODE_ENV=test mocha --recursive --timeout 10000 --compilers js:babel-register",
     "start": "NODE_ENV=dev nodemon -w app --exec \"babel-node app/server.js\""
   },
   "author": "",
