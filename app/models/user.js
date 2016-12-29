@@ -1,4 +1,3 @@
-import { genSalt, hash, compare } from 'bcrypt';
 import mongoose, { Schema } from 'mongoose';
 
 const UserSchema = new Schema({
